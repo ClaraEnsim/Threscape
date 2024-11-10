@@ -23,9 +23,9 @@ public class timer : MonoBehaviour
         UIgameOver.SetActive(true);
         yield return new WaitForSeconds(1);
         SceneManager.LoadScene("InterfaceDemarrage");
-        
-
     }
+
+    
     // Update is called once per frame
     void Update()
     {

@@ -1,14 +1,16 @@
 using UnityEditor;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-
+using UnityEngine.SceneManagement;
 
 public class attaque : MonoBehaviour
 {
     public GameObject chaser; // Référence au GameObject qui poursuit
     public Transform player;   // Référence au joueur
-    public float movementThreshold = 0.1f; // Seuil pour déclencher la poursuite
-    public float chaseThreshold = 3f;
+    public float movementThreshold = 0.01f; // Seuil pour déclencher la poursuite
+    //public float chaseThreshold = 3f;
     public string target;
     public string target2;
     public string target3;
@@ -18,9 +20,10 @@ public class attaque : MonoBehaviour
     private Vector3 lastPosition;
     private bool isPursuing = false;
     private NavMeshAgent agent;
+    public GameObject UIgameOver;
 
-
-public void changementCouleurOeil(){
+    public void changementCouleurOeil()
+    {
         GameObject targetObject = GameObject.FindWithTag(target);
         if (targetObject != null)
         {
@@ -28,8 +31,9 @@ public void changementCouleurOeil(){
             if (targetRenderer != null)
             {
                 targetRenderer.material.color = red1;
-            }
+            }    
         }
+        
         GameObject targetObject2 = GameObject.FindWithTag(target2);
         if (targetObject2 != null)
         {
@@ -39,6 +43,8 @@ public void changementCouleurOeil(){
                 targetRenderer2.material.color = red2;
             }
         }
+        
+
         GameObject targetObject3 = GameObject.FindWithTag(target3);
         if (targetObject3 != null)
         {
@@ -46,33 +52,106 @@ public void changementCouleurOeil(){
             if (targetRenderer3 != null)
             {
                 targetRenderer3.material.color = red3;
-            }
+            }        
         }
     }
 
+/*
     void Start()
     {
+        UIgameOver.SetActive(false);
         lastPosition = transform.position;
         agent = chaser.GetComponent<NavMeshAgent>();
     }
 
     void Update()
+{
+    float distanceMoved = Vector3.Distance(lastPosition, transform.position);
+
+    if (distanceMoved > movementThreshold && !isPursuing)
     {
-        float distanceMoved = Vector3.Distance(lastPosition, transform.position);
-
-        if (distanceMoved > movementThreshold && !isPursuing)
-        {
-            isPursuing = true;
-        }
-
-        if (isPursuing && agent.isOnNavMesh)
-        {
-            changementCouleurOeil();
-            agent.SetDestination(player.position);
-        }
-
-        lastPosition = transform.position;
+        isPursuing = true;
+        changementCouleurOeil();
+        Debug.Log("La poursuite commence !");
     }
 
-    
+    if (isPursuing && agent.isOnNavMesh)
+    {
+        agent.SetDestination(player.position);
+    }
+
+    lastPosition = transform.position;
+}
+
+// Détecte la collision avec le joueur pour déclencher le Game Over
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("MainCamera")) {
+            StartCoroutine(GameOVer());
+        }
+    }
+*/
+
+
+void Start()
+{
+    if (UIgameOver != null)
+    {
+        UIgameOver.SetActive(false);
+    }
+    else
+    {
+        print("UIgameOver n'est pas assigné !");
+    }
+
+    lastPosition = transform.position;
+    agent = chaser.GetComponent<NavMeshAgent>();
+
+    if (agent == null)
+    {
+        print("NavMeshAgent manquant sur chaser !");
+    }
+    else if (!agent.isOnNavMesh)
+    {
+        print("Le monstre n'est pas sur le NavMesh !");
+    }
+}
+
+void Update()
+{
+    float distanceMoved = Vector3.Distance(lastPosition, transform.position);
+
+    if (distanceMoved > movementThreshold && !isPursuing)
+    {
+        isPursuing = true;
+        changementCouleurOeil();
+        print("La poursuite commence !");
+    }
+
+    if (isPursuing && agent.isOnNavMesh)
+    {
+        agent.SetDestination(player.position);
+        print("Le monstre poursuit le joueur.");
+    }
+
+    lastPosition = transform.position;
+}
+
+void OnTriggerEnter(Collider other)
+{
+    if (other.CompareTag("MainCamera"))
+    {
+        print("Collision détectée avec le joueur !");
+        StartCoroutine(GameOVer());
+    }
+}
+
+    IEnumerator GameOVer()
+    {
+        UIgameOver.SetActive(true);
+        yield return new WaitForSeconds(1);
+        SceneManager.LoadScene("InterfaceDemarrage");
+    }
+
+
 }

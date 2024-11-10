@@ -8,10 +8,7 @@ namespace DiabolicalGames{
 public class DestructibleObject : MonoBehaviour
 {
     enum DebrisAmount{
-        Low,
-        Medium,
-        High,
-        Random
+        Medium
     }
 
     enum DespawnType{
@@ -31,14 +28,14 @@ public class DestructibleObject : MonoBehaviour
     private List<DebrisPrefab> debrisPrefabs = new List<DebrisPrefab>();
 
     [SerializeField, Tooltip("Amount of debris(Gameobjects) that will be spawned when the object breaks")]
-    private DebrisAmount debrisAmount = new DebrisAmount();
+    private DebrisAmount debrisAmount = DebrisAmount.Medium;
 
     [SerializeField, Tooltip("Force required to break the object")]
     private float forceRequired;
 
     [Header("Despawning")]
     [SerializeField, Tooltip("Despawn mode used for despawning the debris created by destroying the object\nNone: debris will not be despawned\nTimed: debris will despawned after a certain time\nDistance from Player: debris will despawn when the player moves a certain distance away from the debris")]
-    private DespawnType despawnType = new DespawnType();
+    private DespawnType despawnType = DespawnType.None;
 
     [SerializeField, Range(0, 100), Tooltip("Percentage of debris objects that will be despawned")]
     private int despawnPercentage;
@@ -106,23 +103,16 @@ public class DestructibleObject : MonoBehaviour
         rigidbody = GetComponent<Rigidbody>();
 
         //Instantiates the debris prefab based on the amount chosen and then disables the debris object
-        switch(debrisAmount){
-            case DebrisAmount.Low:
-                debris = Instantiate(debrisPrefabs[0].prefab, transform.position, Quaternion.identity);
-                break;
-            case DebrisAmount.Medium:
-                debris = Instantiate(debrisPrefabs[1].prefab, transform.position, Quaternion.identity);
-                break;
-            case DebrisAmount.High:
-                debris = Instantiate(debrisPrefabs[2].prefab, transform.position, Quaternion.identity);
-                break;
-            case DebrisAmount.Random:
-                debris = Instantiate(debrisPrefabs[Random.Range(0,3)].prefab, transform.position, Quaternion.identity);
-                break;
-            default:
-                debris = Instantiate(debrisPrefabs[0].prefab, transform.position, Quaternion.identity);
-                break;
+        if (debrisPrefabs.Count > 1)
+        {
+            debris = Instantiate(debrisPrefabs[1].prefab, transform.position, Quaternion.identity);
         }
+        else
+        {
+            Debug.LogWarning("Debris prefab list does not contain enough prefabs.");
+            debris = Instantiate(debrisPrefabs[0].prefab, transform.position, Quaternion.identity);
+        }
+        
         debris.SetActive(false);
     }
 
